@@ -11,7 +11,10 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.math.Interpolation;
+import ru.mipt.bit.platformer.graphics.GameMapGraphics;
+import ru.mipt.bit.platformer.graphics.TankGraphics;
 import ru.mipt.bit.platformer.objects.Tank;
+import ru.mipt.bit.platformer.objects.Tree;
 import ru.mipt.bit.platformer.util.GameMap;
 import ru.mipt.bit.platformer.util.ControlsProcessor;
 import ru.mipt.bit.platformer.util.TileMovement;
@@ -28,9 +31,11 @@ public class GameDesktopLauncher implements ApplicationListener {
     private TileMovement tileMovement;
 
     private Tank player;
+    private TankGraphics playerGraphics;
     private ControlsProcessor controlsProcessor;
 
     private GameMap map;
+    private GameMapGraphics mapGraphics;
 
     @Override
     public void create() {
@@ -44,7 +49,9 @@ public class GameDesktopLauncher implements ApplicationListener {
 
         // Player
         player = new Tank();
-        map = new GameMap(groundLayer);
+        playerGraphics = new TankGraphics(tileMovement, player);
+        map = new GameMap(new Tree(1, 3));
+        mapGraphics = new GameMapGraphics(groundLayer, map);
         controlsProcessor = new ControlsProcessor(player, map);
 
     }
@@ -60,8 +67,7 @@ public class GameDesktopLauncher implements ApplicationListener {
 
         controlsProcessor.processInput();
 
-        // calculate interpolated player screen coordinates
-        player.update(deltaTime, tileMovement);
+        player.update(deltaTime);
 
         // render each tile of the level
         levelRenderer.render();
@@ -69,8 +75,8 @@ public class GameDesktopLauncher implements ApplicationListener {
         // start recording all drawing commands
         batch.begin();
 
-        player.render(batch); // render player
-        map.render(batch); // render map
+        playerGraphics.render(batch); // render player
+        mapGraphics.render(batch); // render map
 
         // submit all drawing requests
         batch.end();
@@ -94,8 +100,8 @@ public class GameDesktopLauncher implements ApplicationListener {
     @Override
     public void dispose() {
         // dispose of all the native resources (classes which implement com.badlogic.gdx.utils.Disposable)
-        map.dispose();
-        player.dispose();
+        mapGraphics.dispose();
+        playerGraphics.dispose();
         level.dispose();
         batch.dispose();
     }

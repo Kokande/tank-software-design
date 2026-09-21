@@ -1,6 +1,5 @@
 package ru.mipt.bit.platformer.util;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import ru.mipt.bit.platformer.objects.Tank;
 
@@ -37,15 +36,21 @@ public class ControlsProcessor {
 
     private Tank playerMovement;
     private GameMap environment;
+    private KeyboardState keyboard;
 
     public ControlsProcessor(Tank player, GameMap map) {
+        this(player, map, new GdxKeyboardState());
+    }
+
+    public ControlsProcessor(Tank player, GameMap map, KeyboardState keyboardState) {
         playerMovement = player;
         environment = map;
+        keyboard = keyboardState;
     }
 
     private boolean eitherPressed(int[] keys) {
         for (int key : keys) {
-            if (Gdx.input.isKeyPressed(key)) {
+            if (keyboard.isKeyPressed(key)) {
                 return true;
             }
         }
