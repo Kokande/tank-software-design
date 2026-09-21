@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Rectangle;
+import ru.mipt.bit.platformer.util.GameMap;
 import ru.mipt.bit.platformer.util.TileMovement;
 
 import static com.badlogic.gdx.math.MathUtils.isEqual;
@@ -52,16 +53,14 @@ public class Tank {
         }
     }
 
-    public void tryMovement(int dx, int dy, float newRotation, Tree[] trees) {
+    public void tryMovement(int dx, int dy, float newRotation, GameMap map) {
         playerRotation = newRotation;
         if (!isEqual(playerMovementProgress, 1f)) {
             return;
         }
         GridPoint2 target = new GridPoint2(playerCoordinates.x + dx, playerCoordinates.y + dy);
-        for (Tree tree : trees) {
-            if (target.equals(tree.getCoordinates())) {
-                return;
-            }
+        if (map.collides(target)) {
+            return;
         }
 
         playerDestinationCoordinates.set(target);
