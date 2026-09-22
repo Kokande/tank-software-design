@@ -1,5 +1,6 @@
 def versions = [:]
 versions.gdx = '1.9.11'
+versions.junit = '5.7.2'
 
 def deps = [:]
 
@@ -8,5 +9,9 @@ gdx.gdx = "com.badlogicgames.gdx:gdx:$versions.gdx"
 gdx.backend_lwjgl3 = "com.badlogicgames.gdx:gdx-backend-lwjgl3:$versions.gdx"
 gdx.platform_desktop = "com.badlogicgames.gdx:gdx-platform:$versions.gdx:natives-desktop"
 deps.gdx = gdx
+
+def junit = [:]
+junit.jupiter = "org.junit.jupiter:junit-jupiter:$versions.junit"
+deps.junit = junit
 
 ext.deps = deps

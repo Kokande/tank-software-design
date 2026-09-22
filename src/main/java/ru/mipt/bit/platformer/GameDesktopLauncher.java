@@ -11,11 +11,14 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.math.Interpolation;
+import ru.mipt.bit.platformer.graphics.GameMapGraphics;
+import ru.mipt.bit.platformer.graphics.TankGraphics;
 import ru.mipt.bit.platformer.objects.Tank;
-import ru.mipt.bit.platformer.util.TileMovement;
 import ru.mipt.bit.platformer.objects.Tree;
+import ru.mipt.bit.platformer.util.GameMap;
+import ru.mipt.bit.platformer.util.ControlsProcessor;
+import ru.mipt.bit.platformer.util.TileMovement;
 
-import static com.badlogic.gdx.Input.Keys.*;
 import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.*;
 
@@ -28,8 +31,11 @@ public class GameDesktopLauncher implements ApplicationListener {
     private TileMovement tileMovement;
 
     private Tank player;
+    private TankGraphics playerGraphics;
+    private ControlsProcessor controlsProcessor;
 
-    private Tree[] trees;
+    private GameMap map;
+    private GameMapGraphics mapGraphics;
 
     @Override
     public void create() {
@@ -43,10 +49,11 @@ public class GameDesktopLauncher implements ApplicationListener {
 
         // Player
         player = new Tank();
+        playerGraphics = new TankGraphics(tileMovement, player);
+        map = new GameMap(new Tree(1, 3));
+        mapGraphics = new GameMapGraphics(groundLayer, map);
+        controlsProcessor = new ControlsProcessor(player, map);
 
-        // Tree array
-        trees = new Tree[1];
-        trees[0] = new Tree(groundLayer, 1, 3);
     }
 
     @Override
@@ -58,21 +65,9 @@ public class GameDesktopLauncher implements ApplicationListener {
         // get time passed since the last render
         float deltaTime = Gdx.graphics.getDeltaTime();
 
-        if (Gdx.input.isKeyPressed(UP) || Gdx.input.isKeyPressed(W)) {
-            player.tryMovement(0, 1, 90f, trees);
-        }
-        if (Gdx.input.isKeyPressed(LEFT) || Gdx.input.isKeyPressed(A)) {
-            player.tryMovement(-1, 0, -180f, trees);
-        }
-        if (Gdx.input.isKeyPressed(DOWN) || Gdx.input.isKeyPressed(S)) {
-            player.tryMovement(0, -1, -90f, trees);
-        }
-        if (Gdx.input.isKeyPressed(RIGHT) || Gdx.input.isKeyPressed(D)) {
-            player.tryMovement(1, 0, 0f, trees);
-        }
+        controlsProcessor.processInput();
 
-        // calculate interpolated player screen coordinates
-        player.update(deltaTime, tileMovement);
+        player.update(deltaTime);
 
         // render each tile of the level
         levelRenderer.render();
@@ -80,13 +75,8 @@ public class GameDesktopLauncher implements ApplicationListener {
         // start recording all drawing commands
         batch.begin();
 
-        // render player
-        player.render(batch);
-
-        // render tree obstacle
-        for (Tree tree : trees) {
-            tree.render(batch);
-        }
+        playerGraphics.render(batch); // render player
+        mapGraphics.render(batch); // render map
 
         // submit all drawing requests
         batch.end();
@@ -110,11 +100,8 @@ public class GameDesktopLauncher implements ApplicationListener {
     @Override
     public void dispose() {
         // dispose of all the native resources (classes which implement com.badlogic.gdx.utils.Disposable)
-        for (Tree tree : trees) {
-            tree.dispose();
-        }
-
-        player.dispose();
+        mapGraphics.dispose();
+        playerGraphics.dispose();
         level.dispose();
         batch.dispose();
     }
