@@ -9,7 +9,9 @@ import org.junit.jupiter.params.provider.CsvSource;
 import ru.mipt.bit.platformer.objects.Tank;
 import ru.mipt.bit.platformer.objects.Tree;
 
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -44,9 +46,9 @@ class ControlsProcessorTest {
     @BeforeEach
     void setUp() {
         keyboard = new FakeKeyboard();
-        tank = new Tank(new GridPoint2(START));
+        tank = new Tank(new GridPoint2(START), MOVEMENT_DURATION);
         map = new GameMap(new Tree(1, 3));
-        controlsProcessor = new ControlsProcessor(tank, map, keyboard);
+        controlsProcessor = new ControlsProcessor(tank, map, keyboard, KeyBindings.wasdAndArrows());
     }
 
     @ParameterizedTest
@@ -87,9 +89,21 @@ class ControlsProcessorTest {
 
     @Test
     void everyMovementIsBoundToTwoEquivalentKeys() {
-        for (ControlsProcessor.Movements movement : ControlsProcessor.Movements.values()) {
-            assertEquals(2, movement.getEquivalentKeys().length, movement + " must be bound to a pair of keys");
+        Map<Integer, Direction> bindings = KeyBindings.wasdAndArrows();
+        for (Direction direction : Direction.values()) {
+            assertEquals(2, Collections.frequency(bindings.values(), direction), direction + " must be bound to a pair of keys");
         }
+    }
+
+    @Test
+    void keyBindingsAreConfigurable() {
+        controlsProcessor = new ControlsProcessor(tank, map, keyboard, Map.of(Input.Keys.SPACE, Direction.RIGHT));
+        keyboard.press(Input.Keys.SPACE);
+
+        controlsProcessor.processInput();
+        tank.update(MOVEMENT_DURATION);
+
+        assertEquals(new GridPoint2(START.x + 1, START.y), tank.getCoordinates());
     }
 
     @Test

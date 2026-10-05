@@ -1,67 +1,27 @@
 package ru.mipt.bit.platformer.util;
 
-import com.badlogic.gdx.Input;
-import ru.mipt.bit.platformer.objects.Tank;
+import ru.mipt.bit.platformer.objects.CollisionChecker;
+import ru.mipt.bit.platformer.objects.Movable;
 
-import static com.badlogic.gdx.Input.Keys.*;
-import static com.badlogic.gdx.Input.Keys.A;
-import static com.badlogic.gdx.Input.Keys.D;
-import static com.badlogic.gdx.Input.Keys.DOWN;
-import static com.badlogic.gdx.Input.Keys.RIGHT;
-import static com.badlogic.gdx.Input.Keys.S;
+import java.util.Map;
 
 public class ControlsProcessor {
-    enum Movements {
-        UPWARDS(new int[]{Input.Keys.W, Input.Keys.UP}, Direction.UP),
-        DOWNWARDS(new int[]{DOWN, S}, Direction.DOWN),
-        LEFTWARDS(new int[]{LEFT, A}, Direction.LEFT),
-        RIGHTWARDS(new int[]{RIGHT, D}, Direction.RIGHT);
+    private final Movable playerMovement;
+    private final CollisionChecker environment;
+    private final KeyboardState keyboard;
+    private final Map<Integer, Direction> keyBindings;
 
-        final int[] oneOfKeys;
-        final Direction moveDirection;
-
-        Movements(int[] equalKeys, Direction direction) {
-            oneOfKeys = equalKeys;
-            moveDirection = direction;
-        }
-
-        public int[] getEquivalentKeys() {
-            return oneOfKeys;
-        }
-
-        public Direction getMoveDirection() {
-            return moveDirection;
-        }
-    }
-
-    private Tank playerMovement;
-    private GameMap environment;
-    private KeyboardState keyboard;
-
-    public ControlsProcessor(Tank player, GameMap map) {
-        this(player, map, new GdxKeyboardState());
-    }
-
-    public ControlsProcessor(Tank player, GameMap map, KeyboardState keyboardState) {
+    public ControlsProcessor(Movable player, CollisionChecker map, KeyboardState keyboardState, Map<Integer, Direction> keyBindings) {
         playerMovement = player;
         environment = map;
         keyboard = keyboardState;
-    }
-
-    private boolean eitherPressed(int[] keys) {
-        for (int key : keys) {
-            if (keyboard.isKeyPressed(key)) {
-                return true;
-            }
-        }
-        return false;
+        this.keyBindings = keyBindings;
     }
 
     public void processMovement() {
-        Direction move;
-        for (Movements movement : Movements.values()) {
-            if (eitherPressed(movement.getEquivalentKeys())) {
-                 move = movement.getMoveDirection();
+        for (Map.Entry<Integer, Direction> binding : keyBindings.entrySet()) {
+            if (keyboard.isKeyPressed(binding.getKey())) {
+                Direction move = binding.getValue();
                 playerMovement.tryMovement(move.dx(), move.dy(), move.rotation(), environment);
             }
         }

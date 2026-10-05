@@ -1,23 +1,20 @@
 package ru.mipt.bit.platformer.util;
 
 import com.badlogic.gdx.math.GridPoint2;
-import ru.mipt.bit.platformer.objects.Tree;
+import ru.mipt.bit.platformer.objects.CollisionChecker;
+import ru.mipt.bit.platformer.objects.Obstacle;
 
-public class GameMap {
-    private final Tree[] trees;
+public class GameMap implements CollisionChecker {
+    private final Obstacle[] obstacles;
 
-    public GameMap(Tree... trees) {
-        // Tree array
-        this.trees = trees;
+    public GameMap(Obstacle... obstacles) {
+        this.obstacles = obstacles;
     }
 
-    public Tree[] getTrees() {
-        return trees;
-    }
-
+    @Override
     public boolean collides(GridPoint2 point) {
-        for (Tree tree : trees) {
-            if (point.equals(tree.getCoordinates())) {
+        for (Obstacle obstacle : obstacles) {
+            if (obstacle.occupies(point)) {
                 return true;
             }
         }

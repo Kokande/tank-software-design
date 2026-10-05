@@ -9,15 +9,15 @@ import ru.mipt.bit.platformer.util.TileMovement;
 
 import static ru.mipt.bit.platformer.util.GdxGameUtils.*;
 
-public class TankGraphics {
+public class TankGraphics implements Renderable {
     private final Texture tankTexture;
     private final TextureRegion playerGraphics;
     private final Rectangle playerRectangle;
     private final TileMovement tileMovement;
     private final Tank player;
 
-    public TankGraphics(TileMovement tileMovement, Tank player) {
-        this.tankTexture = new Texture("images/tank_blue.png");
+    public TankGraphics(TileMovement tileMovement, Tank player, String texturePath) {
+        this.tankTexture = new Texture(texturePath);
         // TextureRegion represents Texture portion, there may be many TextureRegion instances of the same Texture
         this.playerGraphics = new TextureRegion(tankTexture);
         this.playerRectangle = createBoundingRectangle(playerGraphics);
@@ -25,12 +25,14 @@ public class TankGraphics {
         this.player = player;
     }
 
+    @Override
     public void render(Batch batch) {
         // calculate interpolated player screen coordinates
         tileMovement.moveRectangleBetweenTileCenters(playerRectangle, player.getCoordinates(), player.getDestinationCoordinates(), player.getMovementProgress());
         drawTextureRegionUnscaled(batch, playerGraphics, playerRectangle, player.getRotation());
     }
 
+    @Override
     public void dispose() {
         tankTexture.dispose();
     }
