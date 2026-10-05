@@ -4,7 +4,6 @@ import com.badlogic.gdx.math.GridPoint2;
 import org.junit.jupiter.api.Test;
 import ru.mipt.bit.platformer.objects.Tree;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -36,14 +35,13 @@ class GameMapTest {
     }
 
     @Test
-    void keepsEveryTreeItWasBuiltFrom() {
-        Tree[] trees = {new Tree(1, 3), new Tree(2, 2)};
+    void collidesWithAnyKindOfObstacle() {
+        // obstacle covering the whole bottom row
+        GameMap map = new GameMap(point -> point.y == 0, new Tree(2, 2));
 
-        GameMap map = new GameMap(trees);
-
-        assertEquals(2, map.getTrees().length);
-        assertEquals(new GridPoint2(1, 3), map.getTrees()[0].getCoordinates());
-        assertEquals(new GridPoint2(2, 2), map.getTrees()[1].getCoordinates());
+        assertTrue(map.collides(new GridPoint2(5, 0)));
+        assertTrue(map.collides(new GridPoint2(2, 2)));
+        assertFalse(map.collides(new GridPoint2(5, 1)));
     }
 
     @Test
@@ -51,6 +49,5 @@ class GameMapTest {
         GameMap map = new GameMap();
 
         assertFalse(map.collides(new GridPoint2(0, 0)));
-        assertEquals(0, map.getTrees().length);
     }
 }

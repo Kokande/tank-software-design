@@ -9,22 +9,24 @@ import ru.mipt.bit.platformer.objects.Tree;
 
 import static ru.mipt.bit.platformer.util.GdxGameUtils.*;
 
-public class TreeGraphics {
+public class TreeGraphics implements Renderable {
     private final Texture treeTexture;
     private final TextureRegion treeObstacleGraphics;
     private final Rectangle treeObstacleRectangle;
 
-    public TreeGraphics(TiledMapTileLayer groundLayer, Tree tree) {
-        this.treeTexture = new Texture("images/greenTree.png");
+    public TreeGraphics(TiledMapTileLayer groundLayer, Tree tree, String texturePath) {
+        this.treeTexture = new Texture(texturePath);
         this.treeObstacleGraphics = new TextureRegion(treeTexture);
         this.treeObstacleRectangle = createBoundingRectangle(treeObstacleGraphics);
         moveRectangleAtTileCenter(groundLayer, treeObstacleRectangle, tree.getCoordinates());
     }
 
+    @Override
     public void render(Batch batch) {
         drawTextureRegionUnscaled(batch, treeObstacleGraphics, treeObstacleRectangle, 0f);
     }
 
+    @Override
     public void dispose() {
         treeTexture.dispose();
     }

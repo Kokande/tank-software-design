@@ -10,19 +10,33 @@ import com.badlogic.gdx.maps.MapRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Interpolation;
-import ru.mipt.bit.platformer.graphics.GameMapGraphics;
+import ru.mipt.bit.platformer.graphics.Renderable;
 import ru.mipt.bit.platformer.graphics.TankGraphics;
+import ru.mipt.bit.platformer.graphics.TreeGraphics;
 import ru.mipt.bit.platformer.objects.Tank;
 import ru.mipt.bit.platformer.objects.Tree;
 import ru.mipt.bit.platformer.util.GameMap;
 import ru.mipt.bit.platformer.util.ControlsProcessor;
+import ru.mipt.bit.platformer.util.GdxKeyboardState;
+import ru.mipt.bit.platformer.util.KeyBindings;
 import ru.mipt.bit.platformer.util.TileMovement;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.*;
 
 public class GameDesktopLauncher implements ApplicationListener {
+    private static final String LEVEL_FILE = "level.tmx";
+    private static final String TANK_TEXTURE = "images/tank_blue.png";
+    private static final String TREE_TEXTURE = "images/greenTree.png";
+
+    private static final int WINDOW_WIDTH = 1280;
+    private static final int WINDOW_HEIGHT = 1024;
+    private static final float PLAYER_MOVEMENT_SPEED = 0.4f;
 
     private Batch batch;
 
@@ -31,29 +45,32 @@ public class GameDesktopLauncher implements ApplicationListener {
     private TileMovement tileMovement;
 
     private Tank player;
-    private TankGraphics playerGraphics;
     private ControlsProcessor controlsProcessor;
 
-    private GameMap map;
-    private GameMapGraphics mapGraphics;
+    private final List<Renderable> renderables = new ArrayList<>();
 
     @Override
     public void create() {
         batch = new SpriteBatch();
 
         // load level tiles
-        level = new TmxMapLoader().load("level.tmx");
+        level = new TmxMapLoader().load(LEVEL_FILE);
         levelRenderer = createSingleLayerMapRenderer(level, batch);
         TiledMapTileLayer groundLayer = getSingleLayer(level);
         tileMovement = new TileMovement(groundLayer, Interpolation.smooth);
 
         // Player
-        player = new Tank();
-        playerGraphics = new TankGraphics(tileMovement, player);
-        map = new GameMap(new Tree(1, 3));
-        mapGraphics = new GameMapGraphics(groundLayer, map);
-        controlsProcessor = new ControlsProcessor(player, map);
+        player = new Tank(new GridPoint2(1, 1), PLAYER_MOVEMENT_SPEED);
+        renderables.add(new TankGraphics(tileMovement, player, TANK_TEXTURE));
 
+        // Obstacles
+        Tree[] trees = {new Tree(1, 3)};
+        for (Tree tree : trees) {
+            renderables.add(new TreeGraphics(groundLayer, tree, TREE_TEXTURE));
+        }
+        GameMap map = new GameMap(trees);
+
+        controlsProcessor = new ControlsProcessor(player, map, new GdxKeyboardState(), KeyBindings.wasdAndArrows());
     }
 
     @Override
@@ -75,8 +92,10 @@ public class GameDesktopLauncher implements ApplicationListener {
         // start recording all drawing commands
         batch.begin();
 
-        playerGraphics.render(batch); // render player
-        mapGraphics.render(batch); // render map
+        // render player and obstacles
+        for (Renderable renderable : renderables) {
+            renderable.render(batch);
+        }
 
         // submit all drawing requests
         batch.end();
@@ -100,16 +119,16 @@ public class GameDesktopLauncher implements ApplicationListener {
     @Override
     public void dispose() {
         // dispose of all the native resources (classes which implement com.badlogic.gdx.utils.Disposable)
-        mapGraphics.dispose();
-        playerGraphics.dispose();
+        for (Renderable renderable : renderables) {
+            renderable.dispose();
+        }
         level.dispose();
         batch.dispose();
     }
 
     public static void main(String[] args) {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-        // level width: 10 tiles x 128px, height: 8 tiles x 128px
-        config.setWindowedMode(1280, 1024);
+        config.setWindowedMode(WINDOW_WIDTH, WINDOW_HEIGHT);
         new Lwjgl3Application(new GameDesktopLauncher(), config);
     }
 }

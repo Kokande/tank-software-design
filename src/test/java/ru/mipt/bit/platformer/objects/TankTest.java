@@ -22,10 +22,10 @@ class TankTest {
     @BeforeEach
     void setUp() {
         emptyMap = new GameMap();
-        tank = new Tank(new GridPoint2(START));
+        tank = new Tank(new GridPoint2(START), MOVEMENT_DURATION);
     }
 
-    private void move(Direction direction, GameMap map) {
+    private void move(Direction direction, CollisionChecker map) {
         tank.tryMovement(direction.dx(), direction.dy(), direction.rotation(), map);
     }
 
@@ -44,7 +44,7 @@ class TankTest {
     @Test
     void doesNotShareStateWithTheCoordinatesItWasCreatedWith() {
         GridPoint2 initial = new GridPoint2(2, 2);
-        Tank tank = new Tank(initial);
+        Tank tank = new Tank(initial, MOVEMENT_DURATION);
 
         initial.set(7, 7);
 
@@ -146,6 +146,25 @@ class TankTest {
 
         assertEquals(new GridPoint2(START.x + direction.dx(), START.y + direction.dy()), tank.getCoordinates());
         assertEquals(direction.rotation(), tank.getRotation());
+    }
+
+    @Test
+    void movementSpeedIsConfigurable() {
+        Tank slowTank = new Tank(new GridPoint2(START), 2 * MOVEMENT_DURATION);
+        slowTank.tryMovement(Direction.UP.dx(), Direction.UP.dy(), Direction.UP.rotation(), emptyMap);
+
+        slowTank.update(MOVEMENT_DURATION);
+
+        assertEquals(0.5f, slowTank.getMovementProgress(), 1e-5f);
+        assertTrue(slowTank.isMoving());
+    }
+
+    @Test
+    void isStoppedByAnyCollisionChecker() {
+        move(Direction.UP, point -> true);
+
+        assertEquals(START, tank.getDestinationCoordinates());
+        assertFalse(tank.isMoving());
     }
 
     @Test
