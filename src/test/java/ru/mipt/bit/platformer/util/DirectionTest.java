@@ -3,13 +3,14 @@ package ru.mipt.bit.platformer.util;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import ru.mipt.bit.platformer.mechanics.Direction;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static ru.mipt.bit.platformer.util.Direction.DOWN;
-import static ru.mipt.bit.platformer.util.Direction.LEFT;
-import static ru.mipt.bit.platformer.util.Direction.RIGHT;
-import static ru.mipt.bit.platformer.util.Direction.UP;
+import static ru.mipt.bit.platformer.mechanics.Direction.DOWN;
+import static ru.mipt.bit.platformer.mechanics.Direction.LEFT;
+import static ru.mipt.bit.platformer.mechanics.Direction.RIGHT;
+import static ru.mipt.bit.platformer.mechanics.Direction.UP;
 
 class DirectionTest {
 

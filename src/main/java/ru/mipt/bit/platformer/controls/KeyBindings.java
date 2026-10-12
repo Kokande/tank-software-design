@@ -1,4 +1,6 @@
-package ru.mipt.bit.platformer.util;
+package ru.mipt.bit.platformer.controls;
+
+import ru.mipt.bit.platformer.mechanics.Direction;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

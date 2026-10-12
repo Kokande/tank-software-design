@@ -17,10 +17,10 @@ import ru.mipt.bit.platformer.graphics.TankGraphics;
 import ru.mipt.bit.platformer.graphics.TreeGraphics;
 import ru.mipt.bit.platformer.objects.Tank;
 import ru.mipt.bit.platformer.objects.Tree;
-import ru.mipt.bit.platformer.util.GameMap;
-import ru.mipt.bit.platformer.util.ControlsProcessor;
-import ru.mipt.bit.platformer.util.GdxKeyboardState;
-import ru.mipt.bit.platformer.util.KeyBindings;
+import ru.mipt.bit.platformer.mechanics.GameMap;
+import ru.mipt.bit.platformer.controls.ControlsProcessor;
+import ru.mipt.bit.platformer.controls.GdxKeyboardState;
+import ru.mipt.bit.platformer.controls.KeyBindings;
 import ru.mipt.bit.platformer.util.TileMovement;
 
 import java.util.ArrayList;
@@ -52,53 +52,68 @@ public class GameDesktopLauncher implements ApplicationListener {
     @Override
     public void create() {
         batch = new SpriteBatch();
-
         // load level tiles
-        level = new TmxMapLoader().load(LEVEL_FILE);
-        levelRenderer = createSingleLayerMapRenderer(level, batch);
-        TiledMapTileLayer groundLayer = getSingleLayer(level);
-        tileMovement = new TileMovement(groundLayer, Interpolation.smooth);
-
+        TiledMapTileLayer groundLayer = loadLevelTiles();
         // Player
-        player = new Tank(new GridPoint2(1, 1), PLAYER_MOVEMENT_SPEED);
-        renderables.add(new TankGraphics(tileMovement, player, TANK_TEXTURE));
-
+        addPlayer();
         // Obstacles
+        GameMap map = mapObstacles(groundLayer);
+
+        controlsProcessor = new ControlsProcessor(player, map, new GdxKeyboardState(), KeyBindings.wasdAndArrows());
+    }
+
+    private GameMap mapObstacles(TiledMapTileLayer groundLayer) {
         Tree[] trees = {new Tree(1, 3)};
         for (Tree tree : trees) {
             renderables.add(new TreeGraphics(groundLayer, tree, TREE_TEXTURE));
         }
-        GameMap map = new GameMap(trees);
+        return new GameMap(trees);
+    }
 
-        controlsProcessor = new ControlsProcessor(player, map, new GdxKeyboardState(), KeyBindings.wasdAndArrows());
+    private void addPlayer() {
+        player = new Tank(new GridPoint2(1, 1), PLAYER_MOVEMENT_SPEED);
+        renderables.add(new TankGraphics(tileMovement, player, TANK_TEXTURE));
+    }
+
+    private TiledMapTileLayer loadLevelTiles() {
+        level = new TmxMapLoader().load(LEVEL_FILE);
+        levelRenderer = createSingleLayerMapRenderer(level, batch);
+        TiledMapTileLayer groundLayer = getSingleLayer(level);
+        tileMovement = new TileMovement(groundLayer, Interpolation.smooth);
+        return groundLayer;
     }
 
     @Override
     public void render() {
         // clear the screen
-        Gdx.gl.glClearColor(0f, 0f, 0.2f, 1f);
-        Gdx.gl.glClear(GL_COLOR_BUFFER_BIT);
-
+        clearTheScreen();
         // get time passed since the last render
-        float deltaTime = Gdx.graphics.getDeltaTime();
-
-        controlsProcessor.processInput();
-
-        player.update(deltaTime);
-
+        tickRender();
         // render each tile of the level
         levelRenderer.render();
-
         // start recording all drawing commands
         batch.begin();
-
         // render player and obstacles
+        renderObjects();
+        // submit all drawing requests
+        batch.end();
+    }
+
+    private void tickRender() {
+        float deltaTime = Gdx.graphics.getDeltaTime();
+        controlsProcessor.processInput();
+        player.update(deltaTime);
+    }
+
+    private void renderObjects() {
         for (Renderable renderable : renderables) {
             renderable.render(batch);
         }
+    }
 
-        // submit all drawing requests
-        batch.end();
+    private void clearTheScreen() {
+        Gdx.gl.glClearColor(0f, 0f, 0.2f, 1f);
+        Gdx.gl.glClear(GL_COLOR_BUFFER_BIT);
     }
 
     @Override

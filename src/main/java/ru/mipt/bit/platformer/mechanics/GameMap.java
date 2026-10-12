@@ -1,8 +1,6 @@
-package ru.mipt.bit.platformer.util;
+package ru.mipt.bit.platformer.mechanics;
 
 import com.badlogic.gdx.math.GridPoint2;
-import ru.mipt.bit.platformer.objects.CollisionChecker;
-import ru.mipt.bit.platformer.objects.Obstacle;
 
 public class GameMap implements CollisionChecker {
     private final Obstacle[] obstacles;

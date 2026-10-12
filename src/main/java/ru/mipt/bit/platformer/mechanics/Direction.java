@@ -1,4 +1,4 @@
-package ru.mipt.bit.platformer.util;
+package ru.mipt.bit.platformer.mechanics;
 
 public enum Direction {
     UP(0, 1, 90f), DOWN(0, -1, -90f),

@@ -2,6 +2,7 @@ package ru.mipt.bit.platformer.util;
 
 import com.badlogic.gdx.math.GridPoint2;
 import org.junit.jupiter.api.Test;
+import ru.mipt.bit.platformer.mechanics.GameMap;
 import ru.mipt.bit.platformer.objects.Tree;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;

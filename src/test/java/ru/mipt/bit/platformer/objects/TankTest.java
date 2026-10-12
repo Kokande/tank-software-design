@@ -5,8 +5,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import ru.mipt.bit.platformer.util.Direction;
-import ru.mipt.bit.platformer.util.GameMap;
+import ru.mipt.bit.platformer.mechanics.CollisionChecker;
+import ru.mipt.bit.platformer.mechanics.Direction;
+import ru.mipt.bit.platformer.mechanics.GameMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

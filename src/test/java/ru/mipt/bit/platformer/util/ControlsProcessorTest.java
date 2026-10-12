@@ -6,6 +6,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import ru.mipt.bit.platformer.controls.ControlsProcessor;
+import ru.mipt.bit.platformer.controls.KeyBindings;
+import ru.mipt.bit.platformer.controls.KeyboardState;
+import ru.mipt.bit.platformer.mechanics.Direction;
+import ru.mipt.bit.platformer.mechanics.GameMap;
 import ru.mipt.bit.platformer.objects.Tank;
 import ru.mipt.bit.platformer.objects.Tree;
 
