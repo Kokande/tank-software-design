@@ -1,4 +1,4 @@
-package ru.mipt.bit.platformer.util;
+package ru.mipt.bit.platformer.controls;
 
 public interface KeyboardState {
     boolean isKeyPressed(int key);

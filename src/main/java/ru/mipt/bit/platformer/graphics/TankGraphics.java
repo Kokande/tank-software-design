@@ -11,25 +11,25 @@ import static ru.mipt.bit.platformer.util.GdxGameUtils.*;
 
 public class TankGraphics implements Renderable {
     private final Texture tankTexture;
-    private final TextureRegion playerGraphics;
-    private final Rectangle playerRectangle;
+    private final TextureRegion tankGraphics;
+    private final Rectangle tankRectangle;
     private final TileMovement tileMovement;
-    private final Tank player;
+    private final Tank tank;
 
-    public TankGraphics(TileMovement tileMovement, Tank player, String texturePath) {
+    public TankGraphics(TileMovement tileMovement, Tank tank, String texturePath) {
         this.tankTexture = new Texture(texturePath);
         // TextureRegion represents Texture portion, there may be many TextureRegion instances of the same Texture
-        this.playerGraphics = new TextureRegion(tankTexture);
-        this.playerRectangle = createBoundingRectangle(playerGraphics);
+        this.tankGraphics = new TextureRegion(tankTexture);
+        this.tankRectangle = createBoundingRectangle(tankGraphics);
         this.tileMovement = tileMovement;
-        this.player = player;
+        this.tank = tank;
     }
 
     @Override
     public void render(Batch batch) {
-        // calculate interpolated player screen coordinates
-        tileMovement.moveRectangleBetweenTileCenters(playerRectangle, player.getCoordinates(), player.getDestinationCoordinates(), player.getMovementProgress());
-        drawTextureRegionUnscaled(batch, playerGraphics, playerRectangle, player.getRotation());
+        // calculate interpolated tank screen coordinates
+        tileMovement.moveRectangleBetweenTileCenters(tankRectangle, tank.getCoordinates(), tank.getDestinationCoordinates(), tank.getMovementProgress());
+        drawTextureRegionUnscaled(batch, tankGraphics, tankRectangle, tank.getRotation());
     }
 
     @Override

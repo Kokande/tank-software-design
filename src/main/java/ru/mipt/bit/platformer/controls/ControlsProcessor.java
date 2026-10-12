@@ -1,7 +1,8 @@
-package ru.mipt.bit.platformer.util;
+package ru.mipt.bit.platformer.controls;
 
-import ru.mipt.bit.platformer.objects.CollisionChecker;
-import ru.mipt.bit.platformer.objects.Movable;
+import ru.mipt.bit.platformer.mechanics.CollisionChecker;
+import ru.mipt.bit.platformer.mechanics.Movable;
+import ru.mipt.bit.platformer.mechanics.Direction;
 
 import java.util.Map;
 
