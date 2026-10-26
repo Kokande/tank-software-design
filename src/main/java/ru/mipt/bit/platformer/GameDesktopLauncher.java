@@ -10,20 +10,27 @@ import com.badlogic.gdx.maps.MapRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Interpolation;
 import ru.mipt.bit.platformer.level.FileLevelGenerator;
 import ru.mipt.bit.platformer.level.Level;
 import ru.mipt.bit.platformer.level.LevelGenerator;
 import ru.mipt.bit.platformer.level.RandomLevelGenerator;
+import ru.mipt.bit.platformer.level.RandomTanksLevelGenerator;
 import ru.mipt.bit.platformer.graphics.Renderable;
 import ru.mipt.bit.platformer.graphics.TankGraphics;
 import ru.mipt.bit.platformer.graphics.TreeGraphics;
 import ru.mipt.bit.platformer.objects.Tank;
 import ru.mipt.bit.platformer.objects.Tree;
 import ru.mipt.bit.platformer.mechanics.GameMap;
+import ru.mipt.bit.platformer.mechanics.LevelBounds;
+import ru.mipt.bit.platformer.mechanics.Obstacle;
+import ru.mipt.bit.platformer.controls.ControlStrategy;
 import ru.mipt.bit.platformer.controls.ControlsProcessor;
 import ru.mipt.bit.platformer.controls.GdxKeyboardState;
 import ru.mipt.bit.platformer.controls.KeyBindings;
+import ru.mipt.bit.platformer.controls.KeyboardControlStrategy;
+import ru.mipt.bit.platformer.controls.RandomControlStrategy;
 import ru.mipt.bit.platformer.util.TileMovement;
 
 import java.nio.file.Files;
@@ -45,7 +52,9 @@ public class GameDesktopLauncher implements ApplicationListener {
     private static final int WINDOW_WIDTH = 1280;
     private static final int WINDOW_HEIGHT = 1024;
     private static final float PLAYER_MOVEMENT_SPEED = 0.4f;
+    private static final float AI_MOVEMENT_SPEED = 0.4f;
     private static final int RANDOM_TREES_COUNT = 10;
+    private static final int RANDOM_TANKS_COUNT = 5;
 
     // path to a text file with the level, the level is generated randomly when it is null
     private final String levelDescriptionFile;
@@ -57,6 +66,7 @@ public class GameDesktopLauncher implements ApplicationListener {
     private TileMovement tileMovement;
 
     private Tank player;
+    private final List<Tank> aiTanks = new ArrayList<>();
     private ControlsProcessor controlsProcessor;
 
     private final List<Renderable> renderables = new ArrayList<>();
@@ -72,15 +82,29 @@ public class GameDesktopLauncher implements ApplicationListener {
         TiledMapTileLayer groundLayer = loadLevelTiles();
         // fill the level
         Level levelContent = createLevelGenerator(groundLayer).generate();
-        // Player
-        addPlayer(levelContent);
+        // Player and AI tanks
+        addTanks(levelContent);
         // Obstacles
         GameMap map = mapObstacles(groundLayer, levelContent);
 
-        controlsProcessor = new ControlsProcessor(player, map, new GdxKeyboardState(), KeyBindings.wasdAndArrows());
+        controlsProcessor = new ControlsProcessor(createControlStrategies(map));
+    }
+
+    private List<ControlStrategy> createControlStrategies(GameMap map) {
+        List<ControlStrategy> strategies = new ArrayList<>();
+        strategies.add(new KeyboardControlStrategy(player, map, new GdxKeyboardState(), KeyBindings.wasdAndArrows()));
+        for (Tank tank : aiTanks) {
+            strategies.add(new RandomControlStrategy(tank, map));
+        }
+        return strategies;
     }
 
     private LevelGenerator createLevelGenerator(TiledMapTileLayer groundLayer) {
+        return new RandomTanksLevelGenerator(createObstaclesGenerator(groundLayer),
+                groundLayer.getWidth(), groundLayer.getHeight(), RANDOM_TANKS_COUNT);
+    }
+
+    private LevelGenerator createObstaclesGenerator(TiledMapTileLayer groundLayer) {
         if (levelDescriptionFile != null) {
             return new FileLevelGenerator(Paths.get(levelDescriptionFile), groundLayer.getHeight());
         }
@@ -88,16 +112,28 @@ public class GameDesktopLauncher implements ApplicationListener {
     }
 
     private GameMap mapObstacles(TiledMapTileLayer groundLayer, Level levelContent) {
-        Tree[] trees = levelContent.getTrees().toArray(new Tree[0]);
-        for (Tree tree : trees) {
+        List<Obstacle> obstacles = new ArrayList<>();
+        obstacles.add(new LevelBounds(groundLayer.getWidth(), groundLayer.getHeight()));
+        for (Tree tree : levelContent.getTrees()) {
             renderables.add(new TreeGraphics(groundLayer, tree, TREE_TEXTURE));
+            obstacles.add(tree);
         }
-        return new GameMap(trees);
+        obstacles.add(player);
+        obstacles.addAll(aiTanks);
+        return new GameMap(obstacles.toArray(new Obstacle[0]));
     }
 
-    private void addPlayer(Level levelContent) {
-        player = new Tank(levelContent.getPlayerPosition(), PLAYER_MOVEMENT_SPEED);
-        renderables.add(new TankGraphics(tileMovement, player, TANK_TEXTURE));
+    private void addTanks(Level levelContent) {
+        player = addTank(levelContent.getPlayerPosition(), PLAYER_MOVEMENT_SPEED);
+        for (GridPoint2 position : levelContent.getTankPositions()) {
+            aiTanks.add(addTank(position, AI_MOVEMENT_SPEED));
+        }
+    }
+
+    private Tank addTank(GridPoint2 position, float movementSpeed) {
+        Tank tank = new Tank(position, movementSpeed);
+        renderables.add(new TankGraphics(tileMovement, tank, TANK_TEXTURE));
+        return tank;
     }
 
     private TiledMapTileLayer loadLevelTiles() {
@@ -128,6 +164,9 @@ public class GameDesktopLauncher implements ApplicationListener {
         float deltaTime = Gdx.graphics.getDeltaTime();
         controlsProcessor.processInput();
         player.update(deltaTime);
+        for (Tank tank : aiTanks) {
+            tank.update(deltaTime);
+        }
     }
 
     private void renderObjects() {

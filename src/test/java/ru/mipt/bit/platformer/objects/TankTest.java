@@ -169,6 +169,48 @@ class TankTest {
     }
 
     @Test
+    void idleTankOccupiesOnlyItsOwnTile() {
+        assertTrue(tank.occupies(START));
+        assertFalse(tank.occupies(new GridPoint2(1, 2)));
+        assertFalse(tank.occupies(new GridPoint2(0, 1)));
+    }
+
+    @Test
+    void movingTankOccupiesBothTheTileItLeavesAndItsDestination() {
+        move(Direction.UP, emptyMap);
+        tank.update(MOVEMENT_DURATION / 2f);
+
+        assertTrue(tank.occupies(START));
+        assertTrue(tank.occupies(new GridPoint2(1, 2)));
+        assertFalse(tank.occupies(new GridPoint2(1, 3)));
+    }
+
+    @Test
+    void releasesThePreviousTileAfterArrival() {
+        move(Direction.UP, emptyMap);
+        finishMovement();
+
+        assertFalse(tank.occupies(START));
+        assertTrue(tank.occupies(new GridPoint2(1, 2)));
+    }
+
+    @Test
+    void doesNotMoveIntoATileTakenByAnotherTank() {
+        Tank other = new Tank(new GridPoint2(1, 2), MOVEMENT_DURATION);
+
+        move(Direction.UP, new GameMap(tank, other));
+
+        assertFalse(tank.isMoving());
+    }
+
+    @Test
+    void doesNotBlockItselfWhenTheMapContainsIt() {
+        move(Direction.UP, new GameMap(tank));
+
+        assertTrue(tank.isMoving());
+    }
+
+    @Test
     void returnsToTheStartAfterAFullLoop() {
         Direction[] loop = {Direction.UP, Direction.RIGHT, Direction.DOWN, Direction.LEFT};
         for (Direction direction : loop) {
