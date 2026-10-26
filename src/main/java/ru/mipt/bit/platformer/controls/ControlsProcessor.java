@@ -1,34 +1,18 @@
 package ru.mipt.bit.platformer.controls;
 
-import ru.mipt.bit.platformer.mechanics.CollisionChecker;
-import ru.mipt.bit.platformer.mechanics.Movable;
-import ru.mipt.bit.platformer.mechanics.Direction;
-
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ControlsProcessor {
-    private final Movable playerMovement;
-    private final CollisionChecker environment;
-    private final KeyboardState keyboard;
-    private final Map<Integer, Direction> keyBindings;
+    private final List<ControlStrategy> strategies;
 
-    public ControlsProcessor(Movable player, CollisionChecker map, KeyboardState keyboardState, Map<Integer, Direction> keyBindings) {
-        playerMovement = player;
-        environment = map;
-        keyboard = keyboardState;
-        this.keyBindings = keyBindings;
-    }
-
-    public void processMovement() {
-        for (Map.Entry<Integer, Direction> binding : keyBindings.entrySet()) {
-            if (keyboard.isKeyPressed(binding.getKey())) {
-                Direction move = binding.getValue();
-                playerMovement.tryMovement(move.dx(), move.dy(), move.rotation(), environment);
-            }
-        }
+    public ControlsProcessor(List<ControlStrategy> strategies) {
+        this.strategies = new ArrayList<>(strategies);
     }
 
     public void processInput() {
-        processMovement();
+        for (ControlStrategy strategy : strategies) {
+            strategy.nextCommand().ifPresent(Command::execute);
+        }
     }
 }

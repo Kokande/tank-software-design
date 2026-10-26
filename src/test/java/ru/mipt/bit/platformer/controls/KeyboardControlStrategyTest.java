@@ -1,4 +1,4 @@
-package ru.mipt.bit.platformer.util;
+package ru.mipt.bit.platformer.controls;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.GridPoint2;
@@ -6,54 +6,39 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import ru.mipt.bit.platformer.controls.ControlsProcessor;
-import ru.mipt.bit.platformer.controls.KeyBindings;
-import ru.mipt.bit.platformer.controls.KeyboardState;
 import ru.mipt.bit.platformer.mechanics.Direction;
 import ru.mipt.bit.platformer.mechanics.GameMap;
 import ru.mipt.bit.platformer.objects.Tank;
 import ru.mipt.bit.platformer.objects.Tree;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class ControlsProcessorTest {
+class KeyboardControlStrategyTest {
     private static final float MOVEMENT_DURATION = 0.4f;
     private static final GridPoint2 START = new GridPoint2(1, 1);
-
-    // keyboard which reports exactly the keys a test has pressed
-    private static class FakeKeyboard implements KeyboardState {
-        private final Set<Integer> pressedKeys = new HashSet<>();
-
-        void press(int... keys) {
-            pressedKeys.clear();
-            for (int key : keys) {
-                pressedKeys.add(key);
-            }
-        }
-
-        @Override
-        public boolean isKeyPressed(int key) {
-            return pressedKeys.contains(key);
-        }
-    }
 
     private FakeKeyboard keyboard;
     private Tank tank;
     private GameMap map;
-    private ControlsProcessor controlsProcessor;
+    private KeyboardControlStrategy strategy;
 
     @BeforeEach
     void setUp() {
         keyboard = new FakeKeyboard();
         tank = new Tank(new GridPoint2(START), MOVEMENT_DURATION);
         map = new GameMap(new Tree(1, 3));
-        controlsProcessor = new ControlsProcessor(tank, map, keyboard, KeyBindings.wasdAndArrows());
+        strategy = new KeyboardControlStrategy(tank, map, keyboard, KeyBindings.wasdAndArrows());
+    }
+
+    private void step() {
+        strategy.nextCommand().ifPresent(Command::execute);
+        tank.update(MOVEMENT_DURATION);
     }
 
     @ParameterizedTest
@@ -66,16 +51,40 @@ class ControlsProcessorTest {
     void eachKeyOfAPairMovesTheTankInItsDirection(String keyName, Direction expected) {
         keyboard.press(Input.Keys.valueOf(keyName));
 
-        controlsProcessor.processInput();
-        tank.update(MOVEMENT_DURATION);
+        step();
 
         assertEquals(expected.rotation(), tank.getRotation());
         assertEquals(new GridPoint2(START.x + expected.dx(), START.y + expected.dy()), tank.getCoordinates());
     }
 
     @Test
+    void producesAMoveCommandForThePressedKey() {
+        keyboard.press(Input.Keys.D);
+
+        Optional<Command> command = strategy.nextCommand();
+
+        assertTrue(command.isPresent());
+        assertEquals(Direction.RIGHT, ((MoveCommand) command.get()).getDirection());
+    }
+
+    @Test
+    void producesNoCommandWhileNothingIsPressed() {
+        assertFalse(strategy.nextCommand().isPresent());
+    }
+
+    @Test
     void tankStaysStillWhileNothingIsPressed() {
-        controlsProcessor.processInput();
+        step();
+
+        assertEquals(START, tank.getCoordinates());
+        assertFalse(tank.isMoving());
+    }
+
+    @Test
+    void commandIsNotExecutedByTheStrategyItself() {
+        keyboard.press(Input.Keys.W);
+
+        strategy.nextCommand();
         tank.update(MOVEMENT_DURATION);
 
         assertEquals(START, tank.getCoordinates());
@@ -86,10 +95,16 @@ class ControlsProcessorTest {
     void unrelatedKeysAreIgnored() {
         keyboard.press(Input.Keys.SPACE, Input.Keys.ESCAPE);
 
-        controlsProcessor.processInput();
-        tank.update(MOVEMENT_DURATION);
+        assertFalse(strategy.nextCommand().isPresent());
+    }
 
-        assertEquals(START, tank.getCoordinates());
+    @Test
+    void theFirstBoundKeyWinsWhenSeveralArePressed() {
+        keyboard.press(Input.Keys.D, Input.Keys.W);
+
+        MoveCommand command = (MoveCommand) strategy.nextCommand().orElseThrow();
+
+        assertEquals(Direction.UP, command.getDirection());
     }
 
     @Test
@@ -102,11 +117,10 @@ class ControlsProcessorTest {
 
     @Test
     void keyBindingsAreConfigurable() {
-        controlsProcessor = new ControlsProcessor(tank, map, keyboard, Map.of(Input.Keys.SPACE, Direction.RIGHT));
+        strategy = new KeyboardControlStrategy(tank, map, keyboard, Map.of(Input.Keys.SPACE, Direction.RIGHT));
         keyboard.press(Input.Keys.SPACE);
 
-        controlsProcessor.processInput();
-        tank.update(MOVEMENT_DURATION);
+        step();
 
         assertEquals(new GridPoint2(START.x + 1, START.y), tank.getCoordinates());
     }
@@ -116,10 +130,8 @@ class ControlsProcessorTest {
         keyboard.press(Input.Keys.W);
 
         // (1,1) -> (1,2), then the tree at (1,3) blocks the next step
-        controlsProcessor.processInput();
-        tank.update(MOVEMENT_DURATION);
-        controlsProcessor.processInput();
-        tank.update(MOVEMENT_DURATION);
+        step();
+        step();
 
         assertEquals(new GridPoint2(1, 2), tank.getCoordinates());
     }
@@ -128,9 +140,8 @@ class ControlsProcessorTest {
     void keyHeldDownKeepsTheTankMoving() {
         keyboard.press(Input.Keys.RIGHT);
 
-        for (int step = 0; step < 3; step++) {
-            controlsProcessor.processInput();
-            tank.update(MOVEMENT_DURATION);
+        for (int i = 0; i < 3; i++) {
+            step();
         }
 
         assertEquals(new GridPoint2(START.x + 3, START.y), tank.getCoordinates());

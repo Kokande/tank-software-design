@@ -3,11 +3,12 @@ package ru.mipt.bit.platformer.objects;
 import com.badlogic.gdx.math.GridPoint2;
 import ru.mipt.bit.platformer.mechanics.CollisionChecker;
 import ru.mipt.bit.platformer.mechanics.Movable;
+import ru.mipt.bit.platformer.mechanics.Obstacle;
 
 import static com.badlogic.gdx.math.MathUtils.isEqual;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.*;
 
-public class Tank implements Movable {
+public class Tank implements Movable, Obstacle {
     private final float movementSpeed;
 
     private GridPoint2 tankCoordinates;
@@ -45,8 +46,15 @@ public class Tank implements Movable {
         tankMovementProgress = 0f;
     }
 
+    @Override
     public boolean isMoving() {
         return !isEqual(tankMovementProgress, 1f);
+    }
+
+    // a moving tank takes both the tile it leaves and the tile it is heading to
+    @Override
+    public boolean occupies(GridPoint2 point) {
+        return tankCoordinates.equals(point) || tankDestinationCoordinates.equals(point);
     }
 
     public GridPoint2 getCoordinates() {
