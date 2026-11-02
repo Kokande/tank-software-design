@@ -4,6 +4,7 @@ import ru.mipt.bit.platformer.mechanics.CollisionChecker;
 import ru.mipt.bit.platformer.mechanics.Direction;
 import ru.mipt.bit.platformer.mechanics.Movable;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -17,7 +18,7 @@ public class KeyboardControlStrategy implements ControlStrategy {
         this.movable = movable;
         this.environment = environment;
         this.keyboard = keyboard;
-        this.keyBindings = keyBindings;
+        this.keyBindings = new LinkedHashMap<>(keyBindings);
     }
 
     @Override

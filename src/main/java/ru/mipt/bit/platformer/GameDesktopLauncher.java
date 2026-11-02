@@ -33,7 +33,6 @@ import ru.mipt.bit.platformer.controls.KeyboardControlStrategy;
 import ru.mipt.bit.platformer.controls.RandomControlStrategy;
 import ru.mipt.bit.platformer.util.TileMovement;
 
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,8 +43,6 @@ import static ru.mipt.bit.platformer.util.GdxGameUtils.*;
 public class GameDesktopLauncher implements ApplicationListener {
     // tile map with the ground, it is not the level description
     private static final String GROUND_TILES_FILE = "level.tmx";
-    // text file with trees and the player, it is used when no other file is passed as an argument
-    private static final String DEFAULT_LEVEL_DESCRIPTION_FILE = "level.dat";
     private static final String TANK_TEXTURE = "images/tank_blue.png";
     private static final String TREE_TEXTURE = "images/greenTree.png";
 
@@ -106,7 +103,7 @@ public class GameDesktopLauncher implements ApplicationListener {
 
     private LevelGenerator createObstaclesGenerator(TiledMapTileLayer groundLayer) {
         if (levelDescriptionFile != null) {
-            return new FileLevelGenerator(Paths.get(levelDescriptionFile), groundLayer.getHeight());
+            return new FileLevelGenerator(Paths.get(levelDescriptionFile), groundLayer.getWidth(), groundLayer.getHeight());
         }
         return new RandomLevelGenerator(groundLayer.getWidth(), groundLayer.getHeight(), RANDOM_TREES_COUNT);
     }
@@ -205,21 +202,24 @@ public class GameDesktopLauncher implements ApplicationListener {
         batch.dispose();
     }
 
-    private static String chooseLevelDescriptionFile(String[] args) {
-        // the only optional argument is a path to a text file with the level
-        if (args.length > 0) {
+    static String chooseLevelDescriptionFile(String[] args) {
+        if (args.length == 0 || (args.length == 1 && "--random".equals(args[0]))) {
+            return null;
+        }
+        if (args.length == 2 && "--level".equals(args[0])) {
+            return args[1];
+        }
+        // Preserve the original explicit file-path argument.
+        if (args.length == 1 && !args[0].startsWith("--")) {
             return args[0];
         }
-        if (Files.exists(Paths.get(DEFAULT_LEVEL_DESCRIPTION_FILE))) {
-            return DEFAULT_LEVEL_DESCRIPTION_FILE;
-        }
-        // no level description, the level is generated randomly
-        return null;
+        throw new IllegalArgumentException("Usage: [--random | --level <path> | <path>]");
     }
 
     public static void main(String[] args) {
+        String levelDescriptionFile = chooseLevelDescriptionFile(args);
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
         config.setWindowedMode(WINDOW_WIDTH, WINDOW_HEIGHT);
-        new Lwjgl3Application(new GameDesktopLauncher(chooseLevelDescriptionFile(args)), config);
+        new Lwjgl3Application(new GameDesktopLauncher(levelDescriptionFile), config);
     }
 }

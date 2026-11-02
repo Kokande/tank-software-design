@@ -12,6 +12,7 @@ import ru.mipt.bit.platformer.objects.Tank;
 import ru.mipt.bit.platformer.objects.Tree;
 
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -20,6 +21,24 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class KeyboardControlStrategyTest {
+    @Test
+    void callerCannotChangeBindingsOrTheirPriorityAfterConstruction() {
+        Map<Integer, Direction> bindings = new LinkedHashMap<>();
+        bindings.put(Input.Keys.D, Direction.RIGHT);
+        bindings.put(Input.Keys.W, Direction.UP);
+        FakeKeyboard keyboard = new FakeKeyboard();
+        Tank tank = new Tank(new GridPoint2(1, 1), 0.4f);
+        ControlStrategy strategy = new KeyboardControlStrategy(tank, new GameMap(), keyboard, bindings);
+        bindings.clear();
+        bindings.put(Input.Keys.D, Direction.LEFT);
+        keyboard.press(Input.Keys.D, Input.Keys.W);
+
+        strategy.nextCommand().orElseThrow().execute();
+        tank.update(0.4f);
+
+        assertEquals(new GridPoint2(2, 1), tank.getCoordinates());
+    }
+
     private static final float MOVEMENT_DURATION = 0.4f;
     private static final GridPoint2 START = new GridPoint2(1, 1);
 
