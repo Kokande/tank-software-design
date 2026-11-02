@@ -83,7 +83,8 @@ class RandomControlStrategyTest {
         Set<Direction> chosen = EnumSet.noneOf(Direction.class);
 
         for (int i = 0; i < 100; i++) {
-            chosen.add(((MoveCommand) strategy.nextCommand().orElseThrow()).getDirection());
+            Command command = strategy.nextCommand().orElseThrow();
+            if (command instanceof MoveCommand) chosen.add(((MoveCommand) command).getDirection());
         }
 
         assertEquals(EnumSet.allOf(Direction.class), chosen);

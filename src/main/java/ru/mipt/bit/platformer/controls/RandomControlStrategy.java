@@ -3,6 +3,7 @@ package ru.mipt.bit.platformer.controls;
 import ru.mipt.bit.platformer.mechanics.CollisionChecker;
 import ru.mipt.bit.platformer.mechanics.Direction;
 import ru.mipt.bit.platformer.mechanics.Movable;
+import ru.mipt.bit.platformer.mechanics.Shooter;
 
 import java.util.Optional;
 import java.util.Random;
@@ -29,7 +30,9 @@ public class RandomControlStrategy implements ControlStrategy {
         if (movable.isMoving()) {
             return Optional.empty();
         }
-        Direction direction = DIRECTIONS[random.nextInt(DIRECTIONS.length)];
+        int choice = random.nextInt(DIRECTIONS.length + (movable instanceof Shooter ? 1 : 0));
+        if (choice == DIRECTIONS.length) return Optional.of(new ShootCommand((Shooter) movable));
+        Direction direction = DIRECTIONS[choice];
         return Optional.of(new MoveCommand(movable, direction, environment));
     }
 }

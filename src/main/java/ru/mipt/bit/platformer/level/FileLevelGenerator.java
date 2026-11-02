@@ -16,23 +16,28 @@ public class FileLevelGenerator implements LevelGenerator {
     static final char EMPTY = '_';
 
     private final Path levelFile;
+    private final int levelWidth;
     private final int levelHeight;
 
-    public FileLevelGenerator(Path levelFile, int levelHeight) {
+    public FileLevelGenerator(Path levelFile, int levelWidth, int levelHeight) {
+        if (levelWidth <= 0 || levelHeight <= 0) {
+            throw new IllegalArgumentException("Level size must be positive: " + levelWidth + "x" + levelHeight);
+        }
         this.levelFile = levelFile;
+        this.levelWidth = levelWidth;
         this.levelHeight = levelHeight;
     }
 
     @Override
     public Level generate() {
         try {
-            return parse(Files.readAllLines(levelFile), levelHeight);
+            return parse(Files.readAllLines(levelFile), levelWidth, levelHeight);
         } catch (IOException e) {
             throw new UncheckedIOException("Can not read level file " + levelFile, e);
         }
     }
 
-    static Level parse(List<String> lines, int levelHeight) {
+    static Level parse(List<String> lines, int levelWidth, int levelHeight) {
         List<String> rows = withoutBlankLines(lines);
         if (rows.size() > levelHeight) {
             throw new IllegalArgumentException("Level has " + rows.size() + " rows, but only " + levelHeight + " fit");
@@ -42,6 +47,10 @@ public class FileLevelGenerator implements LevelGenerator {
 
         for (int row = 0; row < rows.size(); row++) {
             String line = rows.get(row);
+            if (line.length() > levelWidth) {
+                throw new IllegalArgumentException("Level row " + (row + 1) + " has " + line.length()
+                        + " columns, but only " + levelWidth + " fit");
+            }
             // the first line of the file is the top row of the level, y axis points up
             int y = levelHeight - 1 - row;
             for (int x = 0; x < line.length(); x++) {

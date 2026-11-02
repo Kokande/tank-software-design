@@ -6,7 +6,7 @@ public class GameMap implements CollisionChecker {
     private final Obstacle[] obstacles;
 
     public GameMap(Obstacle... obstacles) {
-        this.obstacles = obstacles;
+        this.obstacles = obstacles.clone();
     }
 
     @Override

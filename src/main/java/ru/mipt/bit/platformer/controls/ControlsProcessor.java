@@ -11,8 +11,18 @@ public class ControlsProcessor {
     }
 
     public void processInput() {
+        executeCommands(createCommands());
+    }
+
+    public List<Command> createCommands() {
+        List<Command> commands = new ArrayList<>();
         for (ControlStrategy strategy : strategies) {
-            strategy.nextCommand().ifPresent(Command::execute);
+            strategy.nextCommand().ifPresent(commands::add);
         }
+        return commands;
+    }
+
+    public void executeCommands(List<Command> commands) {
+        for (Command command : commands) command.execute();
     }
 }
