@@ -4,4 +4,3 @@
 Выбор уровня:
 - `./gradlew run --args="--random"`
 - `./gradlew run --args="--level level.dat"`
-

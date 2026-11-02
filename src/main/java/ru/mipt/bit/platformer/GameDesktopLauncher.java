@@ -17,20 +17,22 @@ import ru.mipt.bit.platformer.level.Level;
 import ru.mipt.bit.platformer.level.LevelGenerator;
 import ru.mipt.bit.platformer.level.RandomLevelGenerator;
 import ru.mipt.bit.platformer.level.RandomTanksLevelGenerator;
-import ru.mipt.bit.platformer.graphics.Renderable;
 import ru.mipt.bit.platformer.graphics.TankGraphics;
 import ru.mipt.bit.platformer.graphics.TreeGraphics;
 import ru.mipt.bit.platformer.objects.Tank;
 import ru.mipt.bit.platformer.objects.Tree;
-import ru.mipt.bit.platformer.mechanics.GameMap;
-import ru.mipt.bit.platformer.mechanics.LevelBounds;
-import ru.mipt.bit.platformer.mechanics.Obstacle;
+import ru.mipt.bit.platformer.controls.Command;
 import ru.mipt.bit.platformer.controls.ControlStrategy;
 import ru.mipt.bit.platformer.controls.ControlsProcessor;
 import ru.mipt.bit.platformer.controls.GdxKeyboardState;
 import ru.mipt.bit.platformer.controls.KeyBindings;
 import ru.mipt.bit.platformer.controls.KeyboardControlStrategy;
 import ru.mipt.bit.platformer.controls.RandomControlStrategy;
+import ru.mipt.bit.platformer.controls.KeyboardShootStrategy;
+import ru.mipt.bit.platformer.mechanics.GameWorld;
+import ru.mipt.bit.platformer.objects.Bullet;
+import ru.mipt.bit.platformer.graphics.BulletGraphics;
+import ru.mipt.bit.platformer.graphics.WorldGraphics;
 import ru.mipt.bit.platformer.util.TileMovement;
 
 import java.nio.file.Paths;
@@ -66,7 +68,8 @@ public class GameDesktopLauncher implements ApplicationListener {
     private final List<Tank> aiTanks = new ArrayList<>();
     private ControlsProcessor controlsProcessor;
 
-    private final List<Renderable> renderables = new ArrayList<>();
+    private GameWorld world;
+    private WorldGraphics worldGraphics;
 
     public GameDesktopLauncher(String levelDescriptionFile) {
         this.levelDescriptionFile = levelDescriptionFile;
@@ -79,21 +82,36 @@ public class GameDesktopLauncher implements ApplicationListener {
         TiledMapTileLayer groundLayer = loadLevelTiles();
         // fill the level
         Level levelContent = createLevelGenerator(groundLayer).generate();
+        createWorld(groundLayer);
+        for (Tree tree : levelContent.getTrees()) world.add(tree);
         // Player and AI tanks
         addTanks(levelContent);
-        // Obstacles
-        GameMap map = mapObstacles(groundLayer, levelContent);
-
-        controlsProcessor = new ControlsProcessor(createControlStrategies(map));
+        controlsProcessor = new ControlsProcessor(createControlStrategies());
     }
 
-    private List<ControlStrategy> createControlStrategies(GameMap map) {
+    private void createWorld(TiledMapTileLayer groundLayer) {
+        world = new GameWorld(groundLayer.getWidth(), groundLayer.getHeight());
+        worldGraphics = new WorldGraphics(world, object -> {
+            if (object instanceof Tank) return new TankGraphics(tileMovement, (Tank) object, TANK_TEXTURE);
+            if (object instanceof Tree) return new TreeGraphics(groundLayer, (Tree) object, TREE_TEXTURE);
+            if (object instanceof Bullet) return new BulletGraphics(groundLayer, (Bullet) object);
+            throw new IllegalArgumentException("Unsupported graphics object: " + object.getClass());
+        });
+    }
+
+    private List<ControlStrategy> createControlStrategies() {
         List<ControlStrategy> strategies = new ArrayList<>();
-        strategies.add(new KeyboardControlStrategy(player, map, new GdxKeyboardState(), KeyBindings.wasdAndArrows()));
+        GdxKeyboardState keyboard = new GdxKeyboardState();
+        strategies.add(whileAlive(player, new KeyboardControlStrategy(player, world, keyboard, KeyBindings.wasdAndArrows())));
+        strategies.add(whileAlive(player, new KeyboardShootStrategy(player, keyboard)));
         for (Tank tank : aiTanks) {
-            strategies.add(new RandomControlStrategy(tank, map));
+            strategies.add(whileAlive(tank, new RandomControlStrategy(tank, world)));
         }
         return strategies;
+    }
+
+    private ControlStrategy whileAlive(Tank tank, ControlStrategy strategy) {
+        return () -> world.contains(tank) ? strategy.nextCommand() : java.util.Optional.empty();
     }
 
     private LevelGenerator createLevelGenerator(TiledMapTileLayer groundLayer) {
@@ -108,18 +126,6 @@ public class GameDesktopLauncher implements ApplicationListener {
         return new RandomLevelGenerator(groundLayer.getWidth(), groundLayer.getHeight(), RANDOM_TREES_COUNT);
     }
 
-    private GameMap mapObstacles(TiledMapTileLayer groundLayer, Level levelContent) {
-        List<Obstacle> obstacles = new ArrayList<>();
-        obstacles.add(new LevelBounds(groundLayer.getWidth(), groundLayer.getHeight()));
-        for (Tree tree : levelContent.getTrees()) {
-            renderables.add(new TreeGraphics(groundLayer, tree, TREE_TEXTURE));
-            obstacles.add(tree);
-        }
-        obstacles.add(player);
-        obstacles.addAll(aiTanks);
-        return new GameMap(obstacles.toArray(new Obstacle[0]));
-    }
-
     private void addTanks(Level levelContent) {
         player = addTank(levelContent.getPlayerPosition(), PLAYER_MOVEMENT_SPEED);
         for (GridPoint2 position : levelContent.getTankPositions()) {
@@ -129,7 +135,7 @@ public class GameDesktopLauncher implements ApplicationListener {
 
     private Tank addTank(GridPoint2 position, float movementSpeed) {
         Tank tank = new Tank(position, movementSpeed);
-        renderables.add(new TankGraphics(tileMovement, tank, TANK_TEXTURE));
+        world.add(tank);
         return tank;
     }
 
@@ -159,17 +165,13 @@ public class GameDesktopLauncher implements ApplicationListener {
 
     private void tickRender() {
         float deltaTime = Gdx.graphics.getDeltaTime();
-        controlsProcessor.processInput();
-        player.update(deltaTime);
-        for (Tank tank : aiTanks) {
-            tank.update(deltaTime);
-        }
+        List<Command> commands = controlsProcessor.createCommands();
+        controlsProcessor.executeCommands(commands);
+        world.live(deltaTime);
     }
 
     private void renderObjects() {
-        for (Renderable renderable : renderables) {
-            renderable.render(batch);
-        }
+        worldGraphics.render(batch);
     }
 
     private void clearTheScreen() {
@@ -195,9 +197,7 @@ public class GameDesktopLauncher implements ApplicationListener {
     @Override
     public void dispose() {
         // dispose of all the native resources (classes which implement com.badlogic.gdx.utils.Disposable)
-        for (Renderable renderable : renderables) {
-            renderable.dispose();
-        }
+        worldGraphics.dispose();
         level.dispose();
         batch.dispose();
     }
