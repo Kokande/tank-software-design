@@ -1,8 +1,8 @@
 package ru.mipt.bit.platformer.level;
 
 import com.badlogic.gdx.math.GridPoint2;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;

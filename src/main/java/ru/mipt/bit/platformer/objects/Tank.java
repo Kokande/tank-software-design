@@ -1,12 +1,12 @@
 package ru.mipt.bit.platformer.objects;
 
 import com.badlogic.gdx.math.GridPoint2;
-import ru.mipt.bit.platformer.mechanics.CollisionChecker;
-import ru.mipt.bit.platformer.mechanics.Movable;
+import ru.mipt.bit.platformer.mechanics.collision.CollisionChecker;
 import ru.mipt.bit.platformer.mechanics.GameObject;
 import ru.mipt.bit.platformer.mechanics.GameWorld;
+import ru.mipt.bit.platformer.mechanics.movement.Direction;
+import ru.mipt.bit.platformer.mechanics.movement.Movable;
 import ru.mipt.bit.platformer.mechanics.Shooter;
-import ru.mipt.bit.platformer.mechanics.Direction;
 
 import static com.badlogic.gdx.math.MathUtils.isEqual;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.*;
@@ -15,6 +15,7 @@ public class Tank implements Movable, GameObject, Shooter {
     private GameWorld world;
     private boolean removed;
     private int health;
+    private final int maxHealth;
     private final int bulletDamage;
     private final float bulletTileDuration;
     private float shotCooldown;
@@ -35,6 +36,7 @@ public class Tank implements Movable, GameObject, Shooter {
             throw new IllegalArgumentException("Invalid tank or bullet settings");
         }
         this.health = health;
+        this.maxHealth = health;
         this.bulletDamage = bulletDamage;
         this.bulletTileDuration = bulletTileDuration;
         this.movementSpeed = movementSpeed;
@@ -132,6 +134,7 @@ public class Tank implements Movable, GameObject, Shooter {
     }
 
     public int getHealth() { return health; }
+    public int getMaxHealth() { return maxHealth; }
 
     public void takeDamage(int damage) {
         if (damage < 0) throw new IllegalArgumentException("Damage cannot be negative");

@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.GridPoint2;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import ru.mipt.bit.platformer.mechanics.movement.Direction;
 import ru.mipt.bit.platformer.objects.Bullet;
 import ru.mipt.bit.platformer.objects.Tank;
 import ru.mipt.bit.platformer.objects.Tree;

@@ -5,9 +5,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import ru.mipt.bit.platformer.mechanics.CollisionChecker;
-import ru.mipt.bit.platformer.mechanics.Direction;
-import ru.mipt.bit.platformer.mechanics.GameMap;
+import ru.mipt.bit.platformer.mechanics.collision.CollisionChecker;
+import ru.mipt.bit.platformer.mechanics.collision.GameMap;
+import ru.mipt.bit.platformer.mechanics.movement.Direction;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -32,6 +32,20 @@ class TankTest {
 
     private void finishMovement() {
         tank.update(MOVEMENT_DURATION);
+    }
+
+    @Test
+    void startsWithFullHealthAndKeepsMaximumAfterDamage() {
+        assertEquals(100, tank.getHealth());
+        assertEquals(100, tank.getMaxHealth());
+        tank.takeDamage(25);
+        assertEquals(75, tank.getHealth());
+        assertEquals(100, tank.getMaxHealth());
+
+        Tank customTank = new Tank(new GridPoint2(START), MOVEMENT_DURATION, 80, 50, 0.1f);
+        customTank.takeDamage(20);
+        assertEquals(60, customTank.getHealth());
+        assertEquals(80, customTank.getMaxHealth());
     }
 
     @Test
