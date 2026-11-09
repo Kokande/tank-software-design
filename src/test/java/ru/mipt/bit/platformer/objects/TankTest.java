@@ -35,6 +35,20 @@ class TankTest {
     }
 
     @Test
+    void startsWithFullHealthAndKeepsMaximumAfterDamage() {
+        assertEquals(100, tank.getHealth());
+        assertEquals(100, tank.getMaxHealth());
+        tank.takeDamage(25);
+        assertEquals(75, tank.getHealth());
+        assertEquals(100, tank.getMaxHealth());
+
+        Tank customTank = new Tank(new GridPoint2(START), MOVEMENT_DURATION, 80, 50, 0.1f);
+        customTank.takeDamage(20);
+        assertEquals(60, customTank.getHealth());
+        assertEquals(80, customTank.getMaxHealth());
+    }
+
+    @Test
     void startsIdleAtItsInitialTile() {
         assertEquals(START, tank.getCoordinates());
         assertEquals(START, tank.getDestinationCoordinates());

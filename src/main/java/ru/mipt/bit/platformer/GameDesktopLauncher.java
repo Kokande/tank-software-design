@@ -18,6 +18,8 @@ import ru.mipt.bit.platformer.level.LevelGenerator;
 import ru.mipt.bit.platformer.level.RandomLevelGenerator;
 import ru.mipt.bit.platformer.level.RandomTanksLevelGenerator;
 import ru.mipt.bit.platformer.graphics.TankGraphics;
+import ru.mipt.bit.platformer.graphics.HealthBarDecorator;
+import ru.mipt.bit.platformer.graphics.HealthBarVisibility;
 import ru.mipt.bit.platformer.graphics.TreeGraphics;
 import ru.mipt.bit.platformer.objects.Tank;
 import ru.mipt.bit.platformer.objects.Tree;
@@ -29,6 +31,7 @@ import ru.mipt.bit.platformer.controls.KeyBindings;
 import ru.mipt.bit.platformer.controls.KeyboardControlStrategy;
 import ru.mipt.bit.platformer.controls.RandomControlStrategy;
 import ru.mipt.bit.platformer.controls.KeyboardShootStrategy;
+import ru.mipt.bit.platformer.controls.KeyboardHealthBarStrategy;
 import ru.mipt.bit.platformer.mechanics.GameWorld;
 import ru.mipt.bit.platformer.objects.Bullet;
 import ru.mipt.bit.platformer.graphics.BulletGraphics;
@@ -70,6 +73,7 @@ public class GameDesktopLauncher implements ApplicationListener {
 
     private GameWorld world;
     private WorldGraphics worldGraphics;
+    private final HealthBarVisibility healthBarVisibility = new HealthBarVisibility();
 
     public GameDesktopLauncher(String levelDescriptionFile) {
         this.levelDescriptionFile = levelDescriptionFile;
@@ -92,7 +96,12 @@ public class GameDesktopLauncher implements ApplicationListener {
     private void createWorld(TiledMapTileLayer groundLayer) {
         world = new GameWorld(groundLayer.getWidth(), groundLayer.getHeight());
         worldGraphics = new WorldGraphics(world, object -> {
-            if (object instanceof Tank) return new TankGraphics(tileMovement, (Tank) object, TANK_TEXTURE);
+            if (object instanceof Tank) {
+                Tank tank = (Tank) object;
+                TankGraphics graphics = new TankGraphics(tileMovement, tank, TANK_TEXTURE);
+                return new HealthBarDecorator(graphics, graphics::getBounds,
+                        tank::getHealth, tank::getMaxHealth, healthBarVisibility::isVisible);
+            }
             if (object instanceof Tree) return new TreeGraphics(groundLayer, (Tree) object, TREE_TEXTURE);
             if (object instanceof Bullet) return new BulletGraphics(groundLayer, (Bullet) object);
             throw new IllegalArgumentException("Unsupported graphics object: " + object.getClass());
@@ -102,6 +111,7 @@ public class GameDesktopLauncher implements ApplicationListener {
     private List<ControlStrategy> createControlStrategies() {
         List<ControlStrategy> strategies = new ArrayList<>();
         GdxKeyboardState keyboard = new GdxKeyboardState();
+        strategies.add(new KeyboardHealthBarStrategy(keyboard, healthBarVisibility));
         strategies.add(whileAlive(player, new KeyboardControlStrategy(player, world, keyboard, KeyBindings.wasdAndArrows())));
         strategies.add(whileAlive(player, new KeyboardShootStrategy(player, keyboard)));
         for (Tank tank : aiTanks) {

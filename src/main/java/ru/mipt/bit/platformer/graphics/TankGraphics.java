@@ -36,4 +36,7 @@ public class TankGraphics implements Renderable {
     public void dispose() {
         tankTexture.dispose();
     }
+    public Rectangle getBounds() {
+        return new Rectangle(tankRectangle);
+    }
 }

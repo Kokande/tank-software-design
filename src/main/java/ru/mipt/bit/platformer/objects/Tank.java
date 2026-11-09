@@ -15,6 +15,7 @@ public class Tank implements Movable, GameObject, Shooter {
     private GameWorld world;
     private boolean removed;
     private int health;
+    private final int maxHealth;
     private final int bulletDamage;
     private final float bulletTileDuration;
     private float shotCooldown;
@@ -35,6 +36,7 @@ public class Tank implements Movable, GameObject, Shooter {
             throw new IllegalArgumentException("Invalid tank or bullet settings");
         }
         this.health = health;
+        this.maxHealth = health;
         this.bulletDamage = bulletDamage;
         this.bulletTileDuration = bulletTileDuration;
         this.movementSpeed = movementSpeed;
@@ -132,6 +134,7 @@ public class Tank implements Movable, GameObject, Shooter {
     }
 
     public int getHealth() { return health; }
+    public int getMaxHealth() { return maxHealth; }
 
     public void takeDamage(int damage) {
         if (damage < 0) throw new IllegalArgumentException("Damage cannot be negative");
