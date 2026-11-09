@@ -1,9 +1,9 @@
 package ru.mipt.bit.platformer.objects;
 
 import com.badlogic.gdx.math.GridPoint2;
-import ru.mipt.bit.platformer.mechanics.Direction;
 import ru.mipt.bit.platformer.mechanics.GameObject;
 import ru.mipt.bit.platformer.mechanics.GameWorld;
+import ru.mipt.bit.platformer.mechanics.movement.Direction;
 
 public class Bullet implements GameObject {
     private final Tank owner;

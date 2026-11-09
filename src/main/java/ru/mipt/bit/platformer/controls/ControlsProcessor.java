@@ -1,5 +1,7 @@
 package ru.mipt.bit.platformer.controls;
 
+import ru.mipt.bit.platformer.controls.commands.Command;
+
 import java.util.ArrayList;
 import java.util.List;
 

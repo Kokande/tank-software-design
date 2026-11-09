@@ -1,6 +1,8 @@
 package ru.mipt.bit.platformer.mechanics;
 
 import com.badlogic.gdx.math.GridPoint2;
+import ru.mipt.bit.platformer.mechanics.collision.CollisionChecker;
+import ru.mipt.bit.platformer.mechanics.collision.LevelBounds;
 import ru.mipt.bit.platformer.objects.Bullet;
 import ru.mipt.bit.platformer.objects.Tank;
 

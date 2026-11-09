@@ -1,12 +1,12 @@
 package ru.mipt.bit.platformer.objects;
 
 import com.badlogic.gdx.math.GridPoint2;
-import ru.mipt.bit.platformer.mechanics.CollisionChecker;
-import ru.mipt.bit.platformer.mechanics.Movable;
+import ru.mipt.bit.platformer.mechanics.collision.CollisionChecker;
 import ru.mipt.bit.platformer.mechanics.GameObject;
 import ru.mipt.bit.platformer.mechanics.GameWorld;
+import ru.mipt.bit.platformer.mechanics.movement.Direction;
+import ru.mipt.bit.platformer.mechanics.movement.Movable;
 import ru.mipt.bit.platformer.mechanics.Shooter;
-import ru.mipt.bit.platformer.mechanics.Direction;
 
 import static com.badlogic.gdx.math.MathUtils.isEqual;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.*;

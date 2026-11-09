@@ -5,9 +5,9 @@ import ru.mipt.bit.platformer.mechanics.GameObject;
 import ru.mipt.bit.platformer.mechanics.GameWorld;
 import ru.mipt.bit.platformer.mechanics.WorldListener;
 
+import java.util.function.Function;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.function.Function;
 
 public class WorldGraphics implements WorldListener {
     private final GameWorld world;
