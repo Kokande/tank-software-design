@@ -11,7 +11,7 @@ public class Tree implements GameObject {
     }
 
     public GridPoint2 getCoordinates() {
-        return treeObstacleCoordinates;
+        return new GridPoint2(treeObstacleCoordinates);
     }
 
     @Override

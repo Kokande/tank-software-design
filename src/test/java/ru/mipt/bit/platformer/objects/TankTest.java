@@ -67,6 +67,28 @@ class TankTest {
     }
 
     @Test
+    void changingReturnedCoordinatesDoesNotMoveTheTank() {
+        tank.getCoordinates().set(-1, -1);
+
+        assertEquals(START, tank.getCoordinates());
+        assertTrue(tank.occupies(START));
+        assertFalse(tank.occupies(new GridPoint2(-1, -1)));
+    }
+
+    @Test
+    void changingReturnedDestinationDoesNotRedirectMovement() {
+        move(Direction.UP, emptyMap);
+
+        tank.getDestinationCoordinates().set(-1, -1);
+
+        assertEquals(new GridPoint2(1, 2), tank.getDestinationCoordinates());
+        assertTrue(tank.occupies(new GridPoint2(1, 2)));
+        assertFalse(tank.occupies(new GridPoint2(-1, -1)));
+        finishMovement();
+        assertEquals(new GridPoint2(1, 2), tank.getCoordinates());
+    }
+
+    @Test
     void picksTheNeighbouringTileAsDestinationButStaysUntilItArrives() {
         move(Direction.UP, emptyMap);
 

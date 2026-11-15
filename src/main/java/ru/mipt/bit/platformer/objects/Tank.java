@@ -87,11 +87,11 @@ public class Tank implements Movable, GameObject, Shooter {
     }
 
     public GridPoint2 getCoordinates() {
-        return tankCoordinates;
+        return new GridPoint2(tankCoordinates);
     }
 
     public GridPoint2 getDestinationCoordinates() {
-        return tankDestinationCoordinates;
+        return new GridPoint2(tankDestinationCoordinates);
     }
 
     public float getMovementProgress() {
