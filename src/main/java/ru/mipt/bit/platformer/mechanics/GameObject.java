@@ -2,6 +2,9 @@ package ru.mipt.bit.platformer.mechanics;
 
 import ru.mipt.bit.platformer.mechanics.collision.Obstacle;
 
+/**
+ * Domain: entity lifecycle contract
+ */
 public interface GameObject extends Obstacle {
     default void live(float tick) { }
 

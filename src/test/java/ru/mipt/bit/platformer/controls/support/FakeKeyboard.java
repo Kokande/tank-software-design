@@ -5,7 +5,7 @@ import ru.mipt.bit.platformer.controls.keyboard.KeyboardState;
 import java.util.HashSet;
 import java.util.Set;
 
-// keyboard which reports exactly the keys a test has pressed
+/** Test adapter for KeyboardState: reports exactly the keys pressed by a test. */
 public class FakeKeyboard implements KeyboardState {
     private final Set<Integer> pressedKeys = new HashSet<>();
 

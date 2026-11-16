@@ -7,10 +7,17 @@ import ru.mipt.bit.platformer.mechanics.GameWorld;
 import ru.mipt.bit.platformer.mechanics.movement.Direction;
 import ru.mipt.bit.platformer.mechanics.movement.Movable;
 import ru.mipt.bit.platformer.mechanics.Shooter;
+import ru.mipt.bit.platformer.objects.state.HealthTankState;
+import ru.mipt.bit.platformer.objects.state.TankState;
+
+import java.util.Objects;
 
 import static com.badlogic.gdx.math.MathUtils.isEqual;
-import static ru.mipt.bit.platformer.util.GdxGameUtils.*;
 
+/**
+ * Domain entity: delegates movement and shooting policy to TankState
+ * Implements the Movable and Shooter ports
+ */
 public class Tank implements Movable, GameObject, Shooter {
     private GameWorld world;
     private boolean removed;
@@ -20,7 +27,8 @@ public class Tank implements Movable, GameObject, Shooter {
     private final float bulletTileDuration;
     private float shotCooldown;
     private static final float SHOT_INTERVAL = 0.4f;
-    private final float movementSpeed;
+    private final float baseTileDuration;
+    private TankState state;
 
     private GridPoint2 tankCoordinates;
     private GridPoint2 tankDestinationCoordinates;
@@ -39,7 +47,8 @@ public class Tank implements Movable, GameObject, Shooter {
         this.maxHealth = health;
         this.bulletDamage = bulletDamage;
         this.bulletTileDuration = bulletTileDuration;
-        this.movementSpeed = movementSpeed;
+        this.baseTileDuration = movementSpeed;
+        state = HealthTankState.forHealth(health, maxHealth);
         tankDestinationCoordinates = new GridPoint2(initialCoordinates);
         tankCoordinates = new GridPoint2(initialCoordinates);
         tankRotation = 0f;
@@ -48,7 +57,7 @@ public class Tank implements Movable, GameObject, Shooter {
     public void update(float deltaTime) {
         if (removed) return;
         shotCooldown = Math.max(0, shotCooldown - deltaTime);
-        tankMovementProgress = continueProgress(tankMovementProgress, deltaTime, movementSpeed);
+        tankMovementProgress = state.advanceMovement(tankMovementProgress, deltaTime, baseTileDuration);
         if (isEqual(tankMovementProgress, 1f)) {
             // record that the tank has reached his/her destination
             tankCoordinates.set(tankDestinationCoordinates);
@@ -119,10 +128,10 @@ public class Tank implements Movable, GameObject, Shooter {
 
     @Override
     public void shoot() {
-        if (world == null || removed || shotCooldown > 0) return;
+        if (world == null || removed || shotCooldown > 0 || !state.canShoot()) return;
         Direction direction = getDirection();
         GridPoint2 muzzle = new GridPoint2(tankCoordinates).add(direction.dx(), direction.dy());
-        shotCooldown = SHOT_INTERVAL;
+        shotCooldown = state.shotInterval(SHOT_INTERVAL);
         world.add(new Bullet(this, muzzle, direction, bulletDamage, bulletTileDuration));
     }
 
@@ -136,10 +145,17 @@ public class Tank implements Movable, GameObject, Shooter {
     public int getHealth() { return health; }
     public int getMaxHealth() { return maxHealth; }
 
+    public TankState getState() { return state; }
+
+    public void changeState(TankState state) {
+        this.state = Objects.requireNonNull(state, "state");
+    }
+
     public void takeDamage(int damage) {
         if (damage < 0) throw new IllegalArgumentException("Damage cannot be negative");
         if (removed) return;
         health -= damage;
+        changeState(state.onHealthChanged(health, maxHealth));
         // Per the task, zero health is still alive; removal happens below zero.
         if (health < 0 && world != null) world.remove(this);
     }

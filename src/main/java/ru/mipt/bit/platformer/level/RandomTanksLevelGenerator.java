@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+/**
+ * Infrastructure: decorator of LevelGenerator adapters adding random tank spawn positions
+ */
 public class RandomTanksLevelGenerator implements LevelGenerator {
     private final LevelGenerator levelGenerator;
     private final int width;

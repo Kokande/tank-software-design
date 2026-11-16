@@ -12,6 +12,9 @@ import ru.mipt.bit.platformer.mechanics.Shooter;
 import java.util.Optional;
 import java.util.Random;
 
+/**
+ * Infrastructure: autonomous driving adapter for ControlStrategy
+ */
 public class RandomControlStrategy implements ControlStrategy {
     private static final Direction[] DIRECTIONS = Direction.values();
 

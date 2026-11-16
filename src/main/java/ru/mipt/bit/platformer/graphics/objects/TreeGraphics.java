@@ -10,6 +10,9 @@ import ru.mipt.bit.platformer.objects.Tree;
 
 import static ru.mipt.bit.platformer.util.GdxGameUtils.*;
 
+/**
+ * Infrastructure: rendering-adapter component displaying a domain Tree
+ */
 public class TreeGraphics implements Renderable {
     private final Texture treeTexture;
     private final TextureRegion treeObstacleGraphics;

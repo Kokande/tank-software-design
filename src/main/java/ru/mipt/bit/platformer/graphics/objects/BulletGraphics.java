@@ -10,6 +10,9 @@ import ru.mipt.bit.platformer.objects.Bullet;
 
 import static ru.mipt.bit.platformer.util.GdxGameUtils.moveRectangleAtTileCenter;
 
+/**
+ * Infrastructure: rendering-adapter component displaying a domain Bullet
+ */
 public class BulletGraphics implements Renderable {
     private final Bullet bullet;
     private final TiledMapTileLayer ground;

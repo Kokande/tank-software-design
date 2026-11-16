@@ -1,5 +1,8 @@
 package ru.mipt.bit.platformer.mechanics.movement;
 
+/**
+ * Domain: movement direction value, including the current orientation convention
+ */
 public enum Direction {
     UP(0, 1, 90f), DOWN(0, -1, -90f),
     RIGHT(1, 0, 0f), LEFT(-1, 0, -180f);

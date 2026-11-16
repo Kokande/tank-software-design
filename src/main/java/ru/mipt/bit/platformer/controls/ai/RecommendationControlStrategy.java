@@ -11,6 +11,9 @@ import ru.mipt.bit.platformer.objects.Tank;
 import java.util.function.Supplier;
 import java.util.Optional;
 
+/**
+ * Infrastructure port: driving adapter translating recommended actions into commands
+ */
 public class RecommendationControlStrategy implements ControlStrategy {
     private final Tank tank;
     private final CollisionChecker environment;

@@ -5,6 +5,9 @@ import ru.mipt.bit.platformer.controls.commands.Command;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Application: use case that collects commands through ControlStrategy and executes them
+ */
 public class ControlsProcessor {
     private final List<ControlStrategy> strategies;
 

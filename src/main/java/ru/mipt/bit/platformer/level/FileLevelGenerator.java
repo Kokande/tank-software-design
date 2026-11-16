@@ -10,6 +10,9 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Infrastructure: driven file-system adapter for the LevelGenerator output port
+ */
 public class FileLevelGenerator implements LevelGenerator {
     static final char TREE = 'T';
     static final char PLAYER = 'X';

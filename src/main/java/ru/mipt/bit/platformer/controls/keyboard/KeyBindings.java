@@ -7,6 +7,9 @@ import java.util.Map;
 
 import static com.badlogic.gdx.Input.Keys.*;
 
+/**
+ * Infrastructure: keyboard adapter configuration using key codes
+ */
 public final class KeyBindings {
 
     private KeyBindings() {

@@ -45,6 +45,10 @@ import java.util.List;
 import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.*;
 
+/**
+ * Infrastructure: controls game loop etc.
+ * Also wires ports to adapters
+ */
 public class GameDesktopLauncher implements ApplicationListener {
     // tile map with the ground, it is not the level description
     private static final String GROUND_TILES_FILE = "level.tmx";

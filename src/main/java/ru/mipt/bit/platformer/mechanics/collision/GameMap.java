@@ -2,6 +2,10 @@ package ru.mipt.bit.platformer.mechanics.collision;
 
 import com.badlogic.gdx.math.GridPoint2;
 
+/**
+ * Domain: collision service implementing CollisionChecker over in-memory obstacles
+ * An implementation of a port
+ */
 public class GameMap implements CollisionChecker {
     private final Obstacle[] obstacles;
 

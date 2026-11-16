@@ -3,6 +3,9 @@ package ru.mipt.bit.platformer.objects;
 import com.badlogic.gdx.math.GridPoint2;
 import ru.mipt.bit.platformer.mechanics.GameObject;
 
+/**
+ * Domain entity: static obstacle, independent of its graphics adapter
+ */
 public class Tree implements GameObject {
     private final GridPoint2 treeObstacleCoordinates;
 

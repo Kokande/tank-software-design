@@ -11,6 +11,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Infrastructure: driving adapter translating keyboard state into movement commands
+ */
 public class KeyboardControlStrategy implements ControlStrategy {
     private final Movable movable;
     private final CollisionChecker environment;

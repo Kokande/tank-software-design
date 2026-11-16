@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Domain: world aggregate managing entities, collisions and damage
+ */
 public class GameWorld implements CollisionChecker {
     private final LevelBounds bounds;
     private final List<GameObject> objects = new ArrayList<>();

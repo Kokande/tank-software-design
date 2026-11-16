@@ -8,6 +8,9 @@ import ru.mipt.bit.platformer.graphics.health.HealthBarVisibility;
 
 import java.util.Optional;
 
+/**
+ * Infrastructure: driving adapter translating a key edge into a visibility command
+ */
 public class KeyboardHealthBarStrategy implements ControlStrategy {
     private final KeyboardState keyboard;
     private final Command toggleCommand;

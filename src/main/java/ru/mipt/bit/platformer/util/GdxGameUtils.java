@@ -17,6 +17,9 @@ import java.util.NoSuchElementException;
 
 import static com.badlogic.gdx.math.MathUtils.clamp;
 
+/**
+ * Infrastructure: contains rendering and math helpers
+ */
 public final class GdxGameUtils {
 
     private GdxGameUtils() {

@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Domain: level description containing spawn positions and obstacles
+ */
 public class Level {
     private final GridPoint2 playerPosition;
     private final List<Tree> trees;
