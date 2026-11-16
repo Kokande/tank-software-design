@@ -12,6 +12,9 @@ import java.util.function.Supplier;
 
 import static com.badlogic.gdx.math.MathUtils.clamp;
 
+/**
+ * Infrastructure: rendering-adapter decorator adding health bars to Renderable objects
+ */
 public class HealthBarDecorator implements Renderable {
     private static final float HEIGHT = 6f;
     private static final float GAP = 3f;

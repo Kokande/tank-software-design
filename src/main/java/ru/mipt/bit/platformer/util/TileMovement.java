@@ -7,6 +7,9 @@ import com.badlogic.gdx.math.Rectangle;
 
 import static ru.mipt.bit.platformer.util.GdxGameUtils.moveRectangleAtTileCenter;
 
+/**
+ * Infrastructure: rendering-adapter helper converting tile progress to screen coordinates
+ */
 public class TileMovement {
 
     private final TiledMapTileLayer tileLayer;

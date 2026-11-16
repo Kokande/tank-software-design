@@ -18,6 +18,17 @@ class TreeTest {
     }
 
     @Test
+    void changingReturnedCoordinatesDoesNotMoveTheTree() {
+        Tree tree = new Tree(3, 5);
+
+        tree.getCoordinates().set(5, 3);
+
+        assertEquals(new GridPoint2(3, 5), tree.getCoordinates());
+        assertTrue(tree.occupies(new GridPoint2(3, 5)));
+        assertFalse(tree.occupies(new GridPoint2(5, 3)));
+    }
+
+    @Test
     void occupiesOnlyItsOwnTile() {
         Tree tree = new Tree(3, 5);
 

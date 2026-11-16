@@ -5,6 +5,9 @@ import ru.mipt.bit.platformer.mechanics.GameObject;
 import ru.mipt.bit.platformer.mechanics.GameWorld;
 import ru.mipt.bit.platformer.mechanics.movement.Direction;
 
+/**
+ * Domain entity: projectile movement, damage and owner-separation rules
+ */
 public class Bullet implements GameObject {
     private final Tank owner;
     private final GridPoint2 coordinates;

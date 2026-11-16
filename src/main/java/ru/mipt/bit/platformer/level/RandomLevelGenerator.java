@@ -8,6 +8,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Infrastructure: in-memory procedural provider adapter for LevelGenerator
+ */
 public class RandomLevelGenerator implements LevelGenerator {
     private final int width;
     private final int height;

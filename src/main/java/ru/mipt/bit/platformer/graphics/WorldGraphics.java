@@ -9,6 +9,9 @@ import java.util.function.Function;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * Infrastructure: output adapter for the domain WorldListener port
+ */
 public class WorldGraphics implements WorldListener {
     private final GameWorld world;
     private final Function<GameObject, Renderable> factory;

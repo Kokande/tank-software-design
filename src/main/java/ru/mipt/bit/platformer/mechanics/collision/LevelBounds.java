@@ -2,6 +2,9 @@ package ru.mipt.bit.platformer.mechanics.collision;
 
 import com.badlogic.gdx.math.GridPoint2;
 
+/**
+ * Domain: rectangular world-boundary value object and collision rule
+ */
 public class LevelBounds implements Obstacle {
     private final int width;
     private final int height;

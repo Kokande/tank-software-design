@@ -8,6 +8,9 @@ import ru.mipt.bit.platformer.mechanics.Shooter;
 
 import java.util.Optional;
 
+/**
+ * Infrastructure: driving adapter translating the fire key into shooting commands
+ */
 public class KeyboardShootStrategy implements ControlStrategy {
     private final Shooter shooter;
     private final KeyboardState keyboard;

@@ -4,6 +4,9 @@ import ru.mipt.bit.platformer.mechanics.collision.CollisionChecker;
 import ru.mipt.bit.platformer.mechanics.movement.Direction;
 import ru.mipt.bit.platformer.mechanics.movement.Movable;
 
+/**
+ * Application: movement use case implementing Command through the Movable domain port
+ */
 public class MoveCommand implements Command {
     private final Movable movable;
     private final Direction direction;

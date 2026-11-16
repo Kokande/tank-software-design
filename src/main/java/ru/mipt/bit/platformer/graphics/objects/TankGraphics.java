@@ -10,6 +10,9 @@ import ru.mipt.bit.platformer.util.TileMovement;
 
 import static ru.mipt.bit.platformer.util.GdxGameUtils.*;
 
+/**
+ * Infrastructure: rendering-adapter component displaying a domain Tank
+ */
 public class TankGraphics implements Renderable {
     private final Texture tankTexture;
     private final TextureRegion tankGraphics;
